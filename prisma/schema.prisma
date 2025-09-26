@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  tgId        String       @id @unique
+  onlineSatus Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+  Order       Order[]
+  SummUpdate  SummUpdate[]
+}
+
+model Detail {
+  id        Int       @id @default(autoincrement())
+  text      String
+  image     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Details   Details[] @relation("DetailToDetails")
+}
+
+model DetailTitle {
+  id        Int       @id @default(autoincrement())
+  text      String
+  image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Details   Details[]
+}
+
+model Details {
+  id              Int          @id @default(autoincrement())
+  titleId         Int?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime
+  productAmountId Int?
+  DetailTitle     DetailTitle? @relation(fields: [titleId], references: [id])
+  Detail          Detail[]     @relation("DetailToDetails")
+  Product         Product[]    @relation("DetailsToProduct")
+}
+
+model Order {
+  id              Int             @id @default(autoincrement())
+  payment         PaymentMethod
+  receiver        String
+  quantity        Int?            @default(0)
+  total           Float?          @default(0)
+  status          OrderStatus
+  userId          String
+  productId       Int
+  courierid       String?
+  mssgIds         Int[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  productAmountId Int?
+  clntMssgId      Int?
+  Admin           Admin?          @relation(fields: [courierid], references: [tgId])
+  Product         Product         @relation(fields: [productId], references: [id])
+  User            User            @relation(fields: [userId], references: [id])
+  TonTransaction  TonTransaction?
+}
+
+model Product {
+  id             Int           @id @default(autoincrement())
+  name           ProductType
+  title          String?
+  amount         Int?
+  duration       String?
+  picture        String?
+  requirementsId Int?
+  priceBuy       Float
+  priceTMT       Float
+  priceUSDT      Float
+  chatRequired   Boolean       @default(false)
+  min            Int           @default(0)
+  max            Int           @default(0)
+  pricingTiers   Json          @default("[]")
+  pictures       String[]
+  description    String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  Order          Order[]
+  Requirements   Requirements? @relation(fields: [requirementsId], references: [id])
+  Details        Details[]     @relation("DetailsToProduct")
+}
+
+model Requirements {
+  id        Int       @id @default(autoincrement())
+  asking    String
+  expecting String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Product   Product[]
+}
+
+model SummUpdate {
+  id        Int           @id @default(autoincrement())
+  sum       Float
+  currency  PaymentMethod
+  cashierid String
+  clientid  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime
+  Admin     Admin         @relation(fields: [cashierid], references: [tgId])
+  User      User          @relation(fields: [clientid], references: [id])
+}
+
+model TonTransaction {
+  id        String   @id
+  price     Float
+  orderId   Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Order     Order    @relation(fields: [orderId], references: [id])
+}
+
+model Transfer {
+  id                             Int           @id @default(autoincrement())
+  amount                         Float
+  currency                       PaymentMethod
+  senderid                       String
+  recieverid                     String
+  createdAt                      DateTime      @default(now())
+  updatedAt                      DateTime
+  User_Transfer_recieveridToUser User          @relation("Transfer_recieveridToUser", fields: [recieverid], references: [id])
+  User_Transfer_senderidToUser   User          @relation("Transfer_senderidToUser", fields: [senderid], references: [id])
+}
+
+model User {
+  id                                 String       @id
+  walNum                             String       @unique
+  sumTmt                             Float        @default(0)
+  sumUsdt                            Float        @default(0)
+  role                               UserRole     @default(client)
+  createdAt                          DateTime     @default(now())
+  updatedAt                          DateTime
+  Order                              Order[]
+  Referral_Referral_referredIdToUser Referral?    @relation("Referral_referredIdToUser")
+  Referral_Referral_referrerIdToUser Referral[]   @relation("Referral_referrerIdToUser")
+  SummUpdate                         SummUpdate[]
+  Transfer_Transfer_recieveridToUser Transfer[]   @relation("Transfer_recieveridToUser")
+  Transfer_Transfer_senderidToUser   Transfer[]   @relation("Transfer_senderidToUser")
+}
+
+model Referral {
+  id                             Int               @id @default(autoincrement())
+  referrerId                     String
+  referredId                     String            @unique
+  campaignId                     Int?
+  createdAt                      DateTime          @default(now())
+  updatedAt                      DateTime
+  ReferralCampaign               ReferralCampaign? @relation(fields: [campaignId], references: [id])
+  User_Referral_referredIdToUser User              @relation("Referral_referredIdToUser", fields: [referredId], references: [id])
+  User_Referral_referrerIdToUser User              @relation("Referral_referrerIdToUser", fields: [referrerId], references: [id])
+}
+
+model ReferralCampaign {
+  id             Int        @id @default(autoincrement())
+  name           String     @unique
+  commissionRate Float      @default(0)
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime
+  Referral       Referral[]
+}
+
+enum OrderStatus {
+  pending
+  accepted
+  paid
+  delivering
+  completed
+  cancelled
+  expired
+}
+
+enum PaymentMethod {
+  USDT
+  TON
+  TMT
+}
+
+enum ProductType {
+  jtn
+  star
+  tgprem
+  uc
+  exit
+  pubg
+  trgt
+  psp
+  steam
+  royale
+  gpt
+  lis
+  gplay
+  apple
+  belet
+  alem
+  clash
+  bc
+  brawl
+  roblox
+  bmusic
+  aydym
+  wifi
+  music
+  pes
+  stand
+}
+
+enum UserRole {
+  client
+  admin
+}
