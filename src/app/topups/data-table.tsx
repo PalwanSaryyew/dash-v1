@@ -10,6 +10,7 @@ import {
    SortingState,
    getFilteredRowModel,
    ColumnFiltersState,
+   VisibilityState,
 } from "@tanstack/react-table";
 
 import {
@@ -30,6 +31,8 @@ import {
    DropdownMenuRadioItem,
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableViewOptions } from "./toggle-column-visibility";
 
 interface DataTableProps<TData, TValue> {
    columns: ColumnDef<TData, TValue>[];
@@ -40,10 +43,31 @@ export function DataTable<TData, TValue>({
    columns,
    data,
 }: DataTableProps<TData, TValue>) {
-   const [searching, setSearching] = useState("clientid");
+   const [searching, setSearching] = useState(() => {
+      const firstFilterableColumn = columns.find(
+         (column) => "accessorKey" in column || "accessorFn" in column
+      );
+      if (firstFilterableColumn) {
+         if (firstFilterableColumn.id) {
+            return firstFilterableColumn.id;
+         }
+         if (
+            "accessorKey" in firstFilterableColumn &&
+            typeof firstFilterableColumn.accessorKey === "string"
+         ) {
+            return firstFilterableColumn.accessorKey;
+         }
+      }
+      // Fallback if no suitable column is found, though one is expected.
+      return "id";
+   });
 
    const [sorting, setSorting] = useState<SortingState>([]);
    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+      {}
+   );
+   const [rowSelection, setRowSelection] = useState({});
    const table = useReactTable({
       data,
       columns,
@@ -53,9 +77,18 @@ export function DataTable<TData, TValue>({
       getSortedRowModel: getSortedRowModel(),
       onColumnFiltersChange: setColumnFilters,
       getFilteredRowModel: getFilteredRowModel(),
+      onColumnVisibilityChange: setColumnVisibility,
+      onRowSelectionChange: setRowSelection,
       state: {
          sorting,
          columnFilters,
+         columnVisibility,
+         rowSelection,
+      },
+      initialState: {
+         pagination: {
+            pageSize: 15, // Başlangıçta sayfa başına 15 satır göster
+         },
       },
    });
 
@@ -66,51 +99,61 @@ export function DataTable<TData, TValue>({
 
    return (
       <div>
+         {/* Filtering elements */}
          <div className="flex items-center py-4">
-            <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                  <Button variant="outline">{searching}</Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent className="w-56">
-                  <DropdownMenuRadioGroup
-                     value={searching}
-                     onValueChange={handleFilterChange}
-                  >
-                     {table
-                        .getAllColumns()
-                        .filter(
-                           (column) =>
-                              typeof column.accessorFn !== "undefined" &&
-                              column.getCanFilter()
-                        )
-                        .map((column) => {
-                           return (
-                              <DropdownMenuRadioItem
-                                 key={column.id}
-                                 value={column.id}
-                              >
-                                 {column.id}
-                              </DropdownMenuRadioItem>
-                           );
-                        })}
-                  </DropdownMenuRadioGroup>
-               </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Input
-               placeholder={"Filter " + searching}
-               value={
-                  (table.getColumn(searching)?.getFilterValue() as string) ?? ""
-               }
-               onChange={(event) =>
-                  table
-                     .getColumn(searching)
-                     ?.setFilterValue(event.target.value)
-               }
-               className="max-w-sm"
-            />
+            {/* search */}
+            <div className="flex items-center flex-grow">
+               {/* Input */}
+               <Input
+                  placeholder={"Filter " + searching}
+                  value={
+                     (table.getColumn(searching)?.getFilterValue() as string) ??
+                     ""
+                  }
+                  onChange={(event) =>
+                     table
+                        .getColumn(searching)
+                        ?.setFilterValue(event.target.value)
+                  }
+                  className="max-w-sm mr-1.5"
+               />
+               {/* Radio */}
+               <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                     <Button variant="outline">{searching}</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                     <DropdownMenuRadioGroup
+                        value={searching}
+                        onValueChange={handleFilterChange}
+                     >
+                        {" "}
+                        {table
+                           .getAllColumns()
+                           .filter(
+                              (column) =>
+                                 typeof column.accessorFn !== "undefined" &&
+                                 column.getCanFilter()
+                           )
+                           .map((column) => {
+                              return column.id === "createdAt" ? null : (
+                                 <DropdownMenuRadioItem
+                                    key={column.id}
+                                    value={column.id}
+                                 >
+                                    {column.id}
+                                 </DropdownMenuRadioItem>
+                              );
+                           })}{" "}
+                     </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+               </DropdownMenu>
+            </div>
+            {/* Column Visibility */}
+            <DataTableViewOptions table={table} />
          </div>
-         <div className="overflow-hidden rounded-md border">
+         {/* Table */}
+         <div className="overflow-hidden rounded-md border mb-1.5">
             <Table>
                <TableHeader>
                   {table.getHeaderGroups().map((headerGroup) => (
@@ -160,24 +203,9 @@ export function DataTable<TData, TValue>({
                </TableBody>
             </Table>
          </div>
-         <div className="flex items-center justify-end space-x-2 py-4">
-            <Button
-               variant="outline"
-               size="sm"
-               onClick={() => table.previousPage()}
-               disabled={!table.getCanPreviousPage()}
-            >
-               Previous
-            </Button>
-            <Button
-               variant="outline"
-               size="sm"
-               onClick={() => table.nextPage()}
-               disabled={!table.getCanNextPage()}
-            >
-               Next
-            </Button>
-         </div>
+
+         {/* Pagination */}
+         <DataTablePagination table={table} />
       </div>
    );
 }
