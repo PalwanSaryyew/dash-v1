@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "./data-table-column-header";
+import { cn } from "@/lib/utils";
 
 export const columns: ColumnDef<SummUpdate>[] = [
    {
@@ -62,10 +63,27 @@ export const columns: ColumnDef<SummUpdate>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Currency" />
       ),
+      cell: ({ row }) => {
+         const currency = row.original.currency;
+         return (
+            <div
+               className={cn(
+                  currency === "TMT"
+                     ? "text-tmt"
+                     : currency === "TON"
+                     ? "text-ton"
+                     : "text-usdt",
+                  "text-left font-medium"
+               )}
+            >
+               {currency}
+            </div>
+         );
+      },
    },
    {
       accessorKey: "cashierid",
-      header: ({ column }) =>(
+      header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Cashier ID" />
       ),
    },
@@ -73,16 +91,18 @@ export const columns: ColumnDef<SummUpdate>[] = [
       accessorKey: "clientid",
 
       header: ({ column }) => {
-      return (
-        <div
-         className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Client ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </div>
-      )
-    },
+         return (
+            <div
+               className="flex items-center cursor-pointer select-none"
+               onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+               }
+            >
+               Client ID
+               <ArrowUpDown className="ml-2 h-4 w-4" />
+            </div>
+         );
+      },
    },
    {
       accessorKey: "createdAt",
@@ -98,6 +118,25 @@ export const columns: ColumnDef<SummUpdate>[] = [
             </Button>
          </div>
       ),
+      filterFn: (row, columnId, filterValue) => {
+         // filterValue'nun bir dizi ve içinde iki tarih olduğundan emin oluyoruz
+         if (!Array.isArray(filterValue) || filterValue.length !== 2) {
+            return true; // Eğer filtre değeri geçersizse, satırı göstermeye devam et
+         }
+
+         const [from, to] = filterValue as [Date, Date];
+         const rowDate = new Date(row.getValue(columnId));
+
+         // Satırın tarihinin, seçilen aralıkta olup olmadığını kontrol et
+         // Bitiş tarihini de kapsama dahil etmek için saatini 23:59:59 yapıyoruz
+         if (from && to) {
+            const toEndDate = new Date(to);
+            toEndDate.setHours(23, 59, 59, 999);
+            return rowDate >= from && rowDate <= toEndDate;
+         }
+
+         return true; // Eğer from veya to tanımsız ise filtreleme yapma
+      },
       cell: ({ row }) => {
          const date = row.getValue("createdAt") as string;
          const formatted = new Date(date).toLocaleDateString("tr-TR", {

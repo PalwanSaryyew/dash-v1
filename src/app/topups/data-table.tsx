@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
    DropdownMenu,
    DropdownMenuContent,
@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./toggle-column-visibility";
+import { DateRange } from "react-day-picker";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 
 interface DataTableProps<TData, TValue> {
    columns: ColumnDef<TData, TValue>[];
@@ -61,7 +63,8 @@ export function DataTable<TData, TValue>({
       // Fallback if no suitable column is found, though one is expected.
       return "id";
    });
-
+   // YENİ: Tarih aralığı state'i
+   const [date, setDate] = useState<DateRange | undefined>(undefined);
    const [sorting, setSorting] = useState<SortingState>([]);
    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
@@ -96,11 +99,25 @@ export function DataTable<TData, TValue>({
       setColumnFilters([]); // Clear all existing filters
       setSearching(value); // Set the new column to filter by
    };
+   // YENİ: Tarih değiştiğinde filtreyi güncelleyen useEffect
+   useEffect(() => {
+      // Filtrelemek istediğimiz sütunu alıyoruz (columns.ts dosyasındaki accessorKey ile aynı olmalı)
+      const createdAtColumn = table.getColumn("createdAt");
+
+      if (date?.from && date?.to) {
+         // Sütuna filtre değerini [from, to] olarak ayarlıyoruz
+         createdAtColumn?.setFilterValue([date.from, date.to]);
+      } else {
+         // Eğer tarih aralığı seçili değilse filtreyi temizliyoruz
+         createdAtColumn?.setFilterValue(undefined);
+      }
+   }, [date, table]); // date veya table nesnesi değiştiğinde bu effect çalışır
 
    return (
       <div>
          {/* Filtering elements */}
-         <div className="flex items-center py-4">
+         <div className="flex items-center py-4 gap-4">
+            
             {/* search */}
             <div className="flex items-center flex-grow">
                {/* Input */}
@@ -149,6 +166,8 @@ export function DataTable<TData, TValue>({
                   </DropdownMenuContent>
                </DropdownMenu>
             </div>
+            {/* YENİ: Tarih Aralığı Seçici */}
+            <DatePickerWithRange date={date} setDate={setDate} />
             {/* Column Visibility */}
             <DataTableViewOptions table={table} />
          </div>
