@@ -15,8 +15,9 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "./data-table-column-header";
+
 import { cn } from "@/lib/utils";
+import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
 
 export const columns: ColumnDef<SummUpdate>[] = [
    {

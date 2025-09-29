@@ -116,10 +116,10 @@ export const columns: ColumnDef<Order>[] = [
       accessorKey: "total",
       header: ({ column }) => (
          <div
-            className="text-right cursor-pointer select-none"
+            className="text-right flex items-center justify-end cursor-pointer select-none"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
          >
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            <ArrowUpDown className="mr-1 h-4 w-4" />
             Total
          </div>
       ),

@@ -1,7 +1,8 @@
 import { columns } from "./columns";
 import { SummUpdate } from "../../../generated/prisma";
 import { prisma } from "../../../prisma/prismaConfig";
-import { DataTable } from "./data-table";
+import { DataTable } from "@/components/custom/table/data-table";
+
 
 async function getData(): Promise<SummUpdate[]> {
    // Fetch data from your API here.
