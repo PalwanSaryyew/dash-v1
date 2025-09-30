@@ -17,7 +17,7 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.nick || !credentials?.password) {
-          throw new Error("Geçersiz kimlik bilgileri");
+          throw new Error("Ýalňyş giriş maglumatlary.");
         }
 
         const admin = await prisma.admin.findUnique({
@@ -25,7 +25,7 @@ export const authOptions: AuthOptions = {
         });
 
         if (!admin || !admin.hashedPassword) {
-          throw new Error("Kullanıcı bulunamadı");
+          throw new Error("Ulanyjy tapylmady.");
         }
 
         const isPasswordCorrect = await bcrypt.compare(
@@ -34,7 +34,7 @@ export const authOptions: AuthOptions = {
         );
 
         if (!isPasswordCorrect) {
-          throw new Error("Hatalı şifre");
+          throw new Error("Ýalňyş parol");
         }
 
         // Başarılı girişte kullanıcı objesini döndür (şifreyi dahil etme!)
@@ -53,7 +53,7 @@ export const authOptions: AuthOptions = {
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
-        token.nick = (user as any).nick;
+        token.nick = (user as unknown as {nick: string}).nick;
       }
       return token;
     },

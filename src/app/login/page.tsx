@@ -34,14 +34,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
+        setError("Giriş maglumatlaryňyz ýalňyş.");
         console.error(result.error);
       } else if (result?.ok) {
         // Giriş başarılı, ana sayfaya yönlendir
         router.push("/");
       }
     } catch (error) {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setError("Ýalňyşyk ýüze çykdy. Gaýtadan synanyşyň.");
     }
   };
 
