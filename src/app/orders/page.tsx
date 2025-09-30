@@ -1,26 +1,20 @@
-
-import { columns } from "./columns"
-import { DataTable } from "@/components/custom/table/data-table"
-import { Order } from "../../../generated/prisma"
+import { Order } from "../../../generated/prisma";
 import { prisma } from "../../../prisma/prismaConfig";
-
+import { OrdersTable } from "./orders-table";
 
 
 async function getData(): Promise<Order[]> {
-  // Fetch data from your API here.
+  // Sunucu tarafında veriyi çekmeye devam ediyoruz
   return prisma.order.findMany({
-      orderBy: {
-         createdAt: "desc",
-      },
-   });
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 }
 
-export default async function DemoPage() {
-  const data = await getData()
+export default async function OrdersPage() {
+  const data = await getData();
 
-  return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data} />
-    </div>
-  )
+  // Artık sadece veriyi prop olarak yeni istemci bileşenimize aktarıyoruz
+  return <OrdersTable data={data} />;
 }

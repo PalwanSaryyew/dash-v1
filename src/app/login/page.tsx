@@ -42,6 +42,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       setError("Ýalňyşyk ýüze çykdy. Gaýtadan synanyşyň.");
+      console.error("Girişde ýalňyşlyk:", error);
     }
   };
 

@@ -41,7 +41,7 @@ interface DataTableProps<TData, TValue> {
    data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export default function DataTable<TData, TValue>({
    columns,
    data,
 }: DataTableProps<TData, TValue>) {
@@ -73,7 +73,7 @@ export function DataTable<TData, TValue>({
       {}
    );
    // row selection state
-   //? const [rowSelection, setRowSelection] = useState({})
+    const [rowSelection, setRowSelection] = useState({})
    // date range state
    const [date, setDate] = useState<DateRange | undefined>(undefined);
 
@@ -84,7 +84,7 @@ export function DataTable<TData, TValue>({
       onSortingChange: setSorting, // sorting setter
       onColumnFiltersChange: setColumnFilters, // filtering setter
       onColumnVisibilityChange: setColumnVisibility, // column visibility setter
-      //? onRowSelectionChange: setRowSelection, // row selection setter
+      onRowSelectionChange: setRowSelection, // row selection setter
       getPaginationRowModel: getPaginationRowModel(), // pagination
       getSortedRowModel: getSortedRowModel(), // sorting
       getFilteredRowModel: getFilteredRowModel(), // filtering
@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
          sorting, // sorting state
          columnFilters, // filtering state
          columnVisibility, // column visibility state
-         //? rowSelection, // row selection state
+         rowSelection, // row selection state
       },
       initialState: {
          pagination: {

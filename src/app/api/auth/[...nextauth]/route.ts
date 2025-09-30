@@ -3,11 +3,14 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+// Prisma client'ınızı projenizin yapısına göre import edin.
+// Muhtemelen bir lib veya utils klasöründe tek bir yerden export ediyorsunuzdur.
+// Örnek: import prisma from "@/lib/prisma";
 import { prisma } from "../../../../../prisma/prismaConfig";
 
 
-
-export const authOptions: AuthOptions = {
+// 'export' anahtar kelimesi buradan kaldırıldı. Bu, build hatasını çözer.
+const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -38,8 +41,9 @@ export const authOptions: AuthOptions = {
         }
 
         // Başarılı girişte kullanıcı objesini döndür (şifreyi dahil etme!)
+        // Admin modelinizde tgId olduğundan emin olun, yoksa id: admin.id kullanın.
         return {
-            id: admin.tgId,
+            id: admin.tgId, // Veya admin.tgId, modelinize göre
             nick: admin.nick,
         };
       },
