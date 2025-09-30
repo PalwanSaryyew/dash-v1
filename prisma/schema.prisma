@@ -40,9 +40,9 @@ model DetailTitle {
 
 model Details {
   id              Int          @id @default(autoincrement())
-  titleId         Int?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime
+  titleId         Int?
   productAmountId Int?
   DetailTitle     DetailTitle? @relation(fields: [titleId], references: [id])
   Detail          Detail[]     @relation("DetailToDetails")
@@ -53,8 +53,6 @@ model Order {
   id              Int             @id @default(autoincrement())
   payment         PaymentMethod
   receiver        String
-  quantity        Int?            @default(0)
-  total           Float?          @default(0)
   status          OrderStatus
   userId          String
   productId       Int
@@ -63,6 +61,8 @@ model Order {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime
   productAmountId Int?
+  quantity        Int?            @default(0)
+  total           Float?          @default(0)
   clntMssgId      Int?
   Admin           Admin?          @relation(fields: [courierid], references: [tgId])
   Product         Product         @relation(fields: [productId], references: [id])
@@ -73,22 +73,22 @@ model Order {
 model Product {
   id             Int           @id @default(autoincrement())
   name           ProductType
-  title          String?
   amount         Int?
   duration       String?
-  picture        String?
-  requirementsId Int?
   priceBuy       Float
   priceTMT       Float
   priceUSDT      Float
-  chatRequired   Boolean       @default(false)
-  min            Int           @default(0)
-  max            Int           @default(0)
-  pricingTiers   Json          @default("[]")
+  picture        String?
   pictures       String[]
   description    String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime
+  chatRequired   Boolean       @default(false)
+  title          String?
+  requirementsId Int?
+  max            Int           @default(0)
+  min            Int           @default(0)
+  pricingTiers   Json          @default("[]")
   Order          Order[]
   Requirements   Requirements? @relation(fields: [requirementsId], references: [id])
   Details        Details[]     @relation("DetailsToProduct")
