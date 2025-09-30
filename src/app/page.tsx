@@ -19,7 +19,7 @@ export default function Home() {
                <CardAction>Card Action</CardAction>
             </CardHeader>
             <CardContent className="flex flex-col items-start space-y-4">
-               <Link href="/top-ups">
+               <Link href="/topups">
                   <Button variant={"link"}>Top Ups</Button>
                </Link>
                <Link href="/orders">
