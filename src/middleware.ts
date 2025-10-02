@@ -4,5 +4,5 @@ export { default } from "next-auth/middleware";
 
 export const config = {
   // login sayfasını hariç tutarak diğer tüm sayfaları koru
-  matcher: ["/", "/topups", "/orders"],
+  matcher: ["/", "/topups", "/orders", "/users"],
 };
