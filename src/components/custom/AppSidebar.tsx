@@ -41,8 +41,25 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
+import {  Receipt, ScrollText, UsersRound } from "lucide-react";
+
 
 const items = [
+  {
+      title: "Top ups",
+      url: "/topups",
+      icon: Receipt,
+   },
+   {
+      title: "Orders",
+      url: "/orders",
+      icon: ScrollText,
+   },
+   {
+      title: "Users",
+      url: "/users",
+      icon: UsersRound,
+   },
   {
     title: "Home",
     url: "/",

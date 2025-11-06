@@ -2,6 +2,7 @@ import { Order } from "../../../generated/prisma";
 import { prisma } from "../../../prisma/prismaConfig";
 import { OrdersTable } from "./orders-table";
 
+export const dynamic = 'force-dynamic';
 
 async function getData(): Promise<Order[]> {
   // Sunucu tarafında veriyi çekmeye devam ediyoruz

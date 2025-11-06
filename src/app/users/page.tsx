@@ -2,7 +2,7 @@ import {  User } from "../../../generated/prisma";
 import { prisma } from "../../../prisma/prismaConfig";
 import { UsersTable } from "./users-table";
 
-
+export const dynamic = 'force-dynamic';
 
 async function getData(): Promise<User[]> {
    // Fetch data from your API here.

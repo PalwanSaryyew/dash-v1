@@ -2,6 +2,8 @@ import { SummUpdate } from "../../../generated/prisma";
 import { prisma } from "../../../prisma/prismaConfig";
 import { TopupsTable } from "./topups-table";
 
+export const dynamic = 'force-dynamic';
+
 async function getData(): Promise<SummUpdate[]> {
    // Fetch data from your API here.
    return prisma.summUpdate.findMany({
