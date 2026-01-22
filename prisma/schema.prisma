@@ -13,41 +13,14 @@ model Admin {
   tgId           String       @id @unique
   onlineSatus    Boolean      @default(false)
   createdAt      DateTime     @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime     @updatedAt
   hashedPassword String?
   nick           String?      @unique
   Order          Order[]
   SummUpdate     SummUpdate[]
 }
 
-model Detail {
-  id        Int       @id @default(autoincrement())
-  text      String
-  image     String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-  Details   Details[] @relation("DetailToDetails")
-}
 
-model DetailTitle {
-  id        Int       @id @default(autoincrement())
-  text      String
-  image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-  Details   Details[]
-}
-
-model Details {
-  id              Int          @id @default(autoincrement())
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime
-  titleId         Int?
-  productAmountId Int?
-  DetailTitle     DetailTitle? @relation(fields: [titleId], references: [id])
-  Detail          Detail[]     @relation("DetailToDetails")
-  Product         Product[]    @relation("DetailsToProduct")
-}
 
 model Order {
   id              Int             @id @default(autoincrement())
@@ -59,7 +32,7 @@ model Order {
   courierid       String?
   mssgIds         Int[]
   createdAt       DateTime        @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime        @updatedAt
   productAmountId Int?
   quantity        Int?            @default(0)
   total           Float?          @default(0)
@@ -82,7 +55,7 @@ model Product {
   pictures       String[]
   description    String?
   createdAt      DateTime      @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime      @updatedAt
   chatRequired   Boolean       @default(false)
   title          String?
   requirementsId Int?
@@ -91,65 +64,7 @@ model Product {
   pricingTiers   Json          @default("[]")
   Order          Order[]
   Requirements   Requirements? @relation(fields: [requirementsId], references: [id])
-  Details        Details[]     @relation("DetailsToProduct")
-}
-
-model Requirements {
-  id        Int       @id @default(autoincrement())
-  asking    String
-  expecting String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-  Product   Product[]
-}
-
-model SummUpdate {
-  id        Int           @id @default(autoincrement())
-  sum       Float
-  currency  PaymentMethod
-  cashierid String
-  clientid  String
-  createdAt DateTime      @default(now())
-  updatedAt DateTime
-  Admin     Admin         @relation(fields: [cashierid], references: [tgId])
-  User      User          @relation(fields: [clientid], references: [id])
-}
-
-model TonTransaction {
-  id        String   @id
-  price     Float
-  orderId   Int      @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  Order     Order    @relation(fields: [orderId], references: [id])
-}
-
-model Transfer {
-  id                             Int           @id @default(autoincrement())
-  amount                         Float
-  currency                       PaymentMethod
-  senderid                       String
-  recieverid                     String
-  createdAt                      DateTime      @default(now())
-  updatedAt                      DateTime
-  User_Transfer_recieveridToUser User          @relation("Transfer_recieveridToUser", fields: [recieverid], references: [id])
-  User_Transfer_senderidToUser   User          @relation("Transfer_senderidToUser", fields: [senderid], references: [id])
-}
-
-model User {
-  id                                 String       @id
-  walNum                             String       @unique
-  sumTmt                             Float        @default(0)
-  sumUsdt                            Float        @default(0)
-  role                               UserRole     @default(client)
-  createdAt                          DateTime     @default(now())
-  updatedAt                          DateTime
-  Order                              Order[]
-  Referral_Referral_referredIdToUser Referral?    @relation("Referral_referredIdToUser")
-  Referral_Referral_referrerIdToUser Referral[]   @relation("Referral_referrerIdToUser")
-  SummUpdate                         SummUpdate[]
-  Transfer_Transfer_recieveridToUser Transfer[]   @relation("Transfer_recieveridToUser")
-  Transfer_Transfer_senderidToUser   Transfer[]   @relation("Transfer_senderidToUser")
+  Details        Json          @default("[]")
 }
 
 model Referral {
@@ -158,7 +73,7 @@ model Referral {
   referredId                     String            @unique
   campaignId                     Int?
   createdAt                      DateTime          @default(now())
-  updatedAt                      DateTime
+  updatedAt                      DateTime          @updatedAt
   ReferralCampaign               ReferralCampaign? @relation(fields: [campaignId], references: [id])
   User_Referral_referredIdToUser User              @relation("Referral_referredIdToUser", fields: [referredId], references: [id])
   User_Referral_referrerIdToUser User              @relation("Referral_referrerIdToUser", fields: [referrerId], references: [id])
@@ -170,8 +85,68 @@ model ReferralCampaign {
   commissionRate Float      @default(0)
   isActive       Boolean    @default(true)
   createdAt      DateTime   @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime   @updatedAt
   Referral       Referral[]
+}
+
+model Requirements {
+  id        Int       @id @default(autoincrement())
+  asking    String
+  expecting String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
+}
+
+model SummUpdate {
+  id        Int           @id @default(autoincrement())
+  sum       Float
+  currency  PaymentMethod
+  cashierid String
+  clientid  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  Admin     Admin         @relation(fields: [cashierid], references: [tgId])
+  User      User          @relation(fields: [clientid], references: [id])
+}
+
+model TonTransaction {
+  id        String   @id @default(cuid())
+  price     Float
+  orderId   Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order    @relation(fields: [orderId], references: [id])
+}
+
+model Transfer {
+  id                             Int           @id @default(autoincrement())
+  amount                         Float
+  currency                       PaymentMethod
+  senderid                       String
+  recieverid                     String
+  createdAt                      DateTime      @default(now())
+  updatedAt                      DateTime      @updatedAt
+  User_Transfer_recieveridToUser User          @relation("Transfer_recieveridToUser", fields: [recieverid], references: [id])
+  User_Transfer_senderidToUser   User          @relation("Transfer_senderidToUser", fields: [senderid], references: [id])
+}
+
+model User {
+  id                                 String       @id
+  walNum                             String       @unique
+  sumTmt                             Float        @default(0)
+  sumUsdt                            Float        @default(0)
+  role                               UserRole     @default(client)
+  createdAt                          DateTime     @default(now())
+  updatedAt                          DateTime     @updatedAt
+  Chest                              Chest?
+  Order                              Order[]
+  Referral_Referral_referredIdToUser Referral?    @relation("Referral_referredIdToUser")
+  Referral_Referral_referrerIdToUser Referral[]   @relation("Referral_referrerIdToUser")
+  SummUpdate                         SummUpdate[]
+  Transfer_Transfer_recieveridToUser Transfer[]   @relation("Transfer_recieveridToUser")
+  Transfer_Transfer_senderidToUser   Transfer[]   @relation("Transfer_senderidToUser")
+  blocked                            Boolean      @default(false)
 }
 
 enum OrderStatus {
@@ -219,7 +194,23 @@ enum ProductType {
   stand
 }
 
+model Chest {
+  id        Int       @id // 1'den 100'e kadar numara
+  type      ChestType
+  fullname  String?
+  reward    String?
+  userId    String?   @unique // Bir kullanıcı sadece bir sandık alabilir
+  User      User?     @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 enum UserRole {
   client
   admin
+}
+
+enum ChestType {
+  PREMIUM
+  NORMAL
 }
