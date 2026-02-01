@@ -9,6 +9,7 @@ import {
   Plus,
   Projector,
   ChevronDown,
+  Grip,
 } from "lucide-react";
 import {
   Sidebar,
@@ -61,9 +62,9 @@ const items = [
       icon: UsersRound,
    },
   {
-    title: "Home",
-    url: "/",
-    icon: Home,
+    title: "Products",
+    url: "/products",
+    icon: Grip,
   },
   {
     title: "Inbox",

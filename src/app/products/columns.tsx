@@ -56,20 +56,38 @@ export const columns: ColumnDef<Product>[] = [
       ),
       cell: ({ row }) => {
          const name: ProductType = row.getValue("name");
-         return (
-            <Badge
-               className={cn(
-                  name === "jtn"
-                     ? "bg-blue-500"
-                     : name === "star"
-                     ? "bg-yellow-500"
-                     : "bg-gray-500",
-                  " text-accent-foreground"
-               )}
-            >
-               {name}
-            </Badge>
-         );
+         return <Badge className={cn()}>{name}</Badge>;
+      },
+      filterFn: "equalsString",
+   },
+   {
+      accessorKey: "title",
+      header: ({ column }) => (
+         <DataTableColumnHeader column={column} title="title" />
+      ),
+   },
+   {
+      accessorKey: "amount",
+      header: ({ column }) => (
+         <DataTableColumnHeader column={column} title="Amount" />
+      ),
+      filterFn: "equalsString",
+   },
+   {
+      accessorKey: "duration",
+      header: ({ column }) => (
+         <DataTableColumnHeader column={column} title="Duration" />
+      ),
+      filterFn: "equalsString",
+   },
+   {
+      accessorKey: "priceBuy",
+      header: ({ column }) => (
+         <DataTableColumnHeader column={column} title="Price (Buy)" />
+      ),
+      cell: ({ row }) => {
+         const priceTMT = parseFloat(row.getValue("priceBuy"));
+         return <div className="font-medium">{priceTMT}</div>;
       },
       filterFn: "equalsString",
    },
@@ -96,18 +114,10 @@ export const columns: ColumnDef<Product>[] = [
       filterFn: "equalsString",
    },
    {
-      accessorKey: "amount",
+      accessorKey: "description",
       header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Amount" />
+         <DataTableColumnHeader column={column} title="Description" />
       ),
-      filterFn: "equalsString",
-   },
-   {
-      accessorKey: "duration",
-      header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Duration" />
-      ),
-      filterFn: "equalsString",
    },
    {
       accessorKey: "createdAt",
