@@ -11,11 +11,51 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+
+const EditableCell = ({
+   getValue,
+   row,
+   column,
+   table,
+}: {
+   getValue: any;
+   row: any;
+   column: any;
+   table: any;
+}) => {
+   const initialValue = getValue();
+   const [value, setValue] = useState(initialValue);
+   const isEditing = table.options.meta?.editedRow === row.index;
+
+   const onBlur = () => {
+      const isNumeric = typeof initialValue === "number";
+      const updatedValue = isNumeric ? parseFloat(value) : value;
+      table.options.meta?.updateProduct(row.index, column.id, updatedValue);
+   };
+
+   React.useEffect(() => {
+      setValue(initialValue);
+   }, [initialValue]);
+
+   if (isEditing) {
+      return (
+         <Input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={onBlur}
+         />
+      );
+   }
+
+   return <>{value}</>;
+};
 
 export const columns: ColumnDef<Product>[] = [
    {
@@ -54,10 +94,7 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Name" />
       ),
-      cell: ({ row }) => {
-         const name: ProductType = row.getValue("name");
-         return <Badge className={cn()}>{name}</Badge>;
-      },
+      cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
    },
    {
@@ -65,12 +102,14 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="title" />
       ),
+      cell: (props) => <EditableCell {...props} />,
    },
    {
       accessorKey: "amount",
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Amount" />
       ),
+      cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
    },
    {
@@ -78,6 +117,7 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Duration" />
       ),
+      cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
    },
    {
@@ -85,10 +125,7 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Price (Buy)" />
       ),
-      cell: ({ row }) => {
-         const priceTMT = parseFloat(row.getValue("priceBuy"));
-         return <div className="font-medium">{priceTMT}</div>;
-      },
+      cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
    },
    {
@@ -96,10 +133,7 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Price (TMT)" />
       ),
-      cell: ({ row }) => {
-         const priceTMT = parseFloat(row.getValue("priceTMT"));
-         return <div className="font-medium">{priceTMT}</div>;
-      },
+      cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
    },
    {
@@ -107,10 +141,7 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Price (USDT)" />
       ),
-      cell: ({ row }) => {
-         const priceUSDT = parseFloat(row.getValue("priceUSDT"));
-         return <div className="font-medium">{priceUSDT}</div>;
-      },
+      cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
    },
    {
@@ -118,6 +149,7 @@ export const columns: ColumnDef<Product>[] = [
       header: ({ column }) => (
          <DataTableColumnHeader column={column} title="Description" />
       ),
+      cell: (props) => <EditableCell {...props} />,
    },
    {
       accessorKey: "createdAt",
@@ -162,9 +194,47 @@ export const columns: ColumnDef<Product>[] = [
    {
       id: "actions",
       header: () => <div className="text-right">Actions</div>,
-      cell: ({ row }) => {
-         const product = row.original;
+      cell: ({ row, table }) => {
+         const isEditing = table.options.meta?.editedRow === row.index;
 
+         const handleEdit = () => {
+            table.options.meta?.setEditedRow(row.index);
+         };
+
+         const handleCancel = () => {
+            table.options.meta?.cancelEdit();
+            table.options.meta?.setEditedRow(null);
+         };
+
+         const handleSave = async () => {
+            const product = row.original as Product;
+            try {
+               await fetch(`/api/products/${product.id}`, {
+                  method: "PATCH",
+                  headers: {
+                     "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(product),
+               });
+               table.options.meta?.setEditedRow(null);
+            } catch (error) {
+               console.error("Failed to update product:", error);
+               // Optionally, revert changes here
+            }
+         };
+
+         if (isEditing) {
+            return (
+               <div className="text-right">
+                  <Button onClick={handleSave} size="sm" className="mr-2">
+                     Save
+                  </Button>
+                  <Button onClick={handleCancel} size="sm" variant="outline">
+                     Cancel
+                  </Button>
+               </div>
+            );
+         }
          return (
             <div className="text-right">
                <DropdownMenu>
@@ -178,14 +248,18 @@ export const columns: ColumnDef<Product>[] = [
                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
                      <DropdownMenuItem
                         onClick={() =>
-                           navigator.clipboard.writeText(product.id.toString())
+                           navigator.clipboard.writeText(
+                              (row.original as Product).id.toString()
+                           )
                         }
                      >
                         Copy Product ID
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
                      <DropdownMenuItem>View product details</DropdownMenuItem>
-                     <DropdownMenuItem>Edit product</DropdownMenuItem>
+                     <DropdownMenuItem onClick={handleEdit}>
+                        Edit product
+                     </DropdownMenuItem>
                   </DropdownMenuContent>
                </DropdownMenu>
             </div>

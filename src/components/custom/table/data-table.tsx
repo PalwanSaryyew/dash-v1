@@ -39,11 +39,13 @@ import { DateRange } from "react-day-picker";
 interface DataTableProps<TData, TValue> {
    columns: ColumnDef<TData, TValue>[];
    data: TData[];
+   meta?: any;
 }
 
 export default function DataTable<TData, TValue>({
    columns,
    data,
+   meta,
 }: DataTableProps<TData, TValue>) {
    // sorting state
    const [sorting, setSorting] = useState<SortingState>([]);
@@ -73,13 +75,14 @@ export default function DataTable<TData, TValue>({
       {}
    );
    // row selection state
-    const [rowSelection, setRowSelection] = useState({})
+   const [rowSelection, setRowSelection] = useState({});
    // date range state
    const [date, setDate] = useState<DateRange | undefined>(undefined);
 
    const table = useReactTable({
       data,
       columns,
+      meta,
       getCoreRowModel: getCoreRowModel(),
       onSortingChange: setSorting, // sorting setter
       onColumnFiltersChange: setColumnFilters, // filtering setter
