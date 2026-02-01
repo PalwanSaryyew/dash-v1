@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Product, ProductType } from "../../../generated/prisma";
+import { Product } from "../../../generated/prisma";
 import {
    DropdownMenu,
    DropdownMenuContent,
@@ -12,12 +12,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Row, Column, Table } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   interface TableMeta<TData> {
+      editedRow?: number | null;
+      updateProduct: (
+         rowIndex: number,
+         columnId: string,
+         value: string | number,
+      ) => void;
+      setEditedRow: (rowIndex: number | null) => void;
+      cancelEdit: () => void;
+   }
+}
 
 const EditableCell = ({
    getValue,
@@ -25,23 +38,25 @@ const EditableCell = ({
    column,
    table,
 }: {
-   getValue: any;
-   row: any;
-   column: any;
-   table: any;
+   getValue: () => unknown;
+   row: Row<Product>;
+   column: Column<Product, unknown>;
+   table: Table<Product>;
 }) => {
    const initialValue = getValue();
-   const [value, setValue] = useState(initialValue);
+   const [value, setValue] = useState<string | number>(
+      (initialValue as string | number) ?? "",
+   );
    const isEditing = table.options.meta?.editedRow === row.index;
 
    const onBlur = () => {
       const isNumeric = typeof initialValue === "number";
-      const updatedValue = isNumeric ? parseFloat(value) : value;
+      const updatedValue = isNumeric ? parseFloat(value.toString()) : value;
       table.options.meta?.updateProduct(row.index, column.id, updatedValue);
    };
 
    React.useEffect(() => {
-      setValue(initialValue);
+      setValue((initialValue as string | number) ?? "");
    }, [initialValue]);
 
    if (isEditing) {
@@ -249,7 +264,7 @@ export const columns: ColumnDef<Product>[] = [
                      <DropdownMenuItem
                         onClick={() =>
                            navigator.clipboard.writeText(
-                              (row.original as Product).id.toString()
+                              (row.original as Product).id.toString(),
                            )
                         }
                      >
