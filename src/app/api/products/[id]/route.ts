@@ -1,43 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../prisma/prismaConfig";
-import { Product } from "../../../../../generated/prisma";
+import { Prisma } from "../../../../../generated/prisma";
+import type {
+   Product,
+   
+} from "../../../../../generated/prisma";
 
-export async function PATCH(
-   request: NextRequest,
-   { params }: { params: { id: string } },
-) {
+type Params = { params: Promise<{ id: string }> };
+
+export async function PATCH(request: NextRequest, { params }: Params) {
    try {
+      const { id: idParam } = (await params) as { id: string };
+      const id = parseInt(idParam, 10);
+      if (Number.isNaN(id)) {
+         return NextResponse.json(
+            { error: "Invalid product id" },
+            { status: 400 },
+         );
+      }
+
       const body: Partial<Product> = await request.json();
-      const { id } = await params;
 
-      // Ensure numeric fields are correctly typed
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const data: any = {
-      ...body,
-      priceBuy: body.priceBuy ? parseFloat(body.priceBuy as never) : undefined,
-      priceTMT: body.priceTMT ? parseFloat(body.priceTMT as never) : undefined,
-      priceUSDT: body.priceUSDT ? parseFloat(body.priceUSDT as never) : undefined,
-      amount: body.amount ? parseInt(body.amount as never) : undefined,
-    };
+      // Create a shallow copy and remove read-only or server-managed fields
+      const dataToUpdate = { ...body } as Record<string, unknown>;
+      delete dataToUpdate.id;
+      delete dataToUpdate.createdAt;
+      delete dataToUpdate.updatedAt;
+      delete dataToUpdate.isEditing;
 
-    if (data.requirementsId) {
-      data.Requirements = {
-        connect: {
-          id: data.requirementsId,
-        },
-      };
-      delete data.requirementsId;
-    }
-
-    delete data.id;
-    delete data.createdAt;
-    delete data.updatedAt;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (data as any).isEditing;
+      if (Object.keys(dataToUpdate).length === 0) {
+         return NextResponse.json(
+            { error: "No update fields provided" },
+            { status: 400 },
+         );
+      }
 
       const updatedProduct = await prisma.product.update({
-         where: { id: parseInt(id) },
-         data,
+         where: { id },
+         data: dataToUpdate as Prisma.ProductUpdateInput,
       });
 
       return NextResponse.json(updatedProduct, { status: 200 });

@@ -5,7 +5,7 @@ import DataTable from "@/components/custom/table/data-table";
 import { useState } from "react";
 
 interface ProductsTableProps {
-  data: Product[];
+   data: Product[];
 }
 
 export function ProductsTable({ data: initialData }: ProductsTableProps) {
@@ -15,7 +15,7 @@ export function ProductsTable({ data: initialData }: ProductsTableProps) {
    const updateProduct = (
       rowIndex: number,
       columnId: string,
-      value: unknown
+      value: unknown,
    ) => {
       setData((prev) =>
          prev.map((row, index) => {
@@ -26,7 +26,7 @@ export function ProductsTable({ data: initialData }: ProductsTableProps) {
                };
             }
             return row;
-         })
+         }),
       );
    };
 
@@ -34,13 +34,15 @@ export function ProductsTable({ data: initialData }: ProductsTableProps) {
       <div className="container mx-auto py-10">
          <DataTable
             columns={columns}
-            data={data.map((d, index) => ({ ...d, isEditing: editedRow === index }))}
+            data={data.map((d, index) => ({
+               ...d,
+               isEditing: editedRow === index,
+            }))}
             meta={{
                updateProduct,
                editedRow,
                setEditedRow,
                cancelEdit: () => setData(initialData),
-               initialData,
             }}
          />
       </div>
