@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,6 +21,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +39,9 @@ export default function LoginPage() {
         setError("Giriş maglumatlaryňyz ýalňyş.");
         console.error(result.error);
       } else if (result?.ok) {
-        // Giriş başarılı, ana sayfaya yönlendir
-        router.push("/");
+        // Giriş başarılı, callbackUrl'e veya ana sayfaya yönlendir
+        router.push(callbackUrl);
+        router.refresh(); // Session'ı yenilemek ve client tarafında güncellenmesini sağlamak için
       }
     } catch (error) {
       setError("Ýalňyşyk ýüze çykdy. Gaýtadan synanyşyň.");
