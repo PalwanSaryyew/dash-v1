@@ -107,7 +107,7 @@ export const columns: ColumnDef<Product>[] = [
    {
       accessorKey: "name",
       header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Name" />
+         <DataTableColumnHeader column={column} title="Part" />
       ),
       cell: (props) => <EditableCell {...props} />,
       filterFn: "equalsString",
@@ -115,7 +115,7 @@ export const columns: ColumnDef<Product>[] = [
    {
       accessorKey: "title",
       header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="title" />
+         <DataTableColumnHeader column={column} title="Title" />
       ),
       cell: (props) => <EditableCell {...props} />,
    },
