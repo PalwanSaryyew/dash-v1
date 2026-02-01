@@ -3,6 +3,5 @@
 export { default } from "next-auth/middleware";
 
 export const config = {
-  // login sayfasını hariç tutarak diğer tüm sayfaları koru
-  matcher: ["/", "/topups", "/orders", "/users"],
+   matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
 };
