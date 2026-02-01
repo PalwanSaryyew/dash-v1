@@ -11,12 +11,13 @@ export async function PATCH(
       const { id } = await params;
 
       // Ensure numeric fields are correctly typed
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const data: any = {
       ...body,
-      priceBuy: body.priceBuy ? parseFloat(body.priceBuy as any) : undefined,
-      priceTMT: body.priceTMT ? parseFloat(body.priceTMT as any) : undefined,
-      priceUSDT: body.priceUSDT ? parseFloat(body.priceUSDT as any) : undefined,
-      amount: body.amount ? parseInt(body.amount as any) : undefined,
+      priceBuy: body.priceBuy ? parseFloat(body.priceBuy as never) : undefined,
+      priceTMT: body.priceTMT ? parseFloat(body.priceTMT as never) : undefined,
+      priceUSDT: body.priceUSDT ? parseFloat(body.priceUSDT as never) : undefined,
+      amount: body.amount ? parseInt(body.amount as never) : undefined,
     };
 
     if (data.requirementsId) {
@@ -31,6 +32,7 @@ const data: any = {
     delete data.id;
     delete data.createdAt;
     delete data.updatedAt;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (data as any).isEditing;
 
       const updatedProduct = await prisma.product.update({

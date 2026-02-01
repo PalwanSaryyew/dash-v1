@@ -11,6 +11,7 @@ import {
    SortingState,
    useReactTable,
    VisibilityState,
+   TableMeta,
 } from "@tanstack/react-table";
 
 import {
@@ -39,7 +40,7 @@ import { DateRange } from "react-day-picker";
 interface DataTableProps<TData, TValue> {
    columns: ColumnDef<TData, TValue>[];
    data: TData[];
-   meta?: any;
+   meta?: TableMeta<TData>;
 }
 
 export default function DataTable<TData, TValue>({

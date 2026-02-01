@@ -1,5 +1,5 @@
 import {
-  Home,
+  
   Inbox,
   Calendar,
   Search,

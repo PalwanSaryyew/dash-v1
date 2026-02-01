@@ -17,8 +17,8 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const Navbar = () => {
-   const { theme, setTheme } = useTheme();
-   const { toggleSidebar } = useSidebar();
+   const { /* theme, */ setTheme } = useTheme();
+   const {/*  toggleSidebar */ } = useSidebar();
    return (
       <nav className="p-4 flex items-center justify-between sticky top-0 bg-background z-10 border-b">
          {/* LEFT */}
